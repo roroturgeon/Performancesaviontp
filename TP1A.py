@@ -18,6 +18,7 @@ def atmosphere(Hp,T_C,delISA):
     if delISA==True:
 
         if Hp<=36089:
+            delISA=T_C
             delta=(1-6.87535*10**(-6)*Hp)**(5.2559)
             p=delta*p_0
             T_ISA=T_0_C-labda*Hp
@@ -28,13 +29,14 @@ def atmosphere(Hp,T_C,delISA):
             rho=sigma*rho_0
             
         elif Hp>38089 and Hp<=65617:
-           T_C=T_tropo_C+delISA 
-           T_K=T_tropo_K+delISA 
-           theta=T_K/T_0_K
-           delta=0.22336*math.e**(-((Hp-36089)/20806))
-           p=delta*p_0
-           sigma=delta/theta
-           rho=sigma*rho_0
+            delISA=T_C
+            T_C=T_tropo_C+delISA 
+            T_K=T_tropo_K+delISA 
+            theta=T_K/T_0_K
+            delta=0.22336*math.e**(-((Hp-36089)/20806))
+            p=delta*p_0
+            sigma=delta/theta
+            rho=sigma*rho_0
             
             
     else:
@@ -60,3 +62,9 @@ def atmosphere(Hp,T_C,delISA):
             
     
     return theta,delta,sigma,T_C,T_K,delISA,p,rho
+
+# TEST APPEL FONCTION
+
+
+
+
