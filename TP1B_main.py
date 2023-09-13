@@ -8,10 +8,14 @@ Created on Tue Sep 12 16:22:09 2023
 import numpy as np
 import math
 from TP1B import parametres_de_vol
-Hp=1
-T_C=1
-delISA=True
-W=1
+Hp=-2000
+T_C=35
+delISA=False
+W=40000
+Vc=150
 
 
-parametres_de_vol(Hp, T_C, delISA, W, S=22)
+a_kts, a_fts, M, V_kts, V_fts, Ve_kts, Ve_fts, Vc_kts, Vc_fts, pt, q, qc, Tt_C, Tt_K, mu, RN, CL = parametres_de_vol(Hp, T_C, delISA, W, Vc=Vc)
+print(RN)
+print(CL)
+
