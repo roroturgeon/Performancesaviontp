@@ -8,20 +8,19 @@ import numpy as np
 from TP1A import atmosphere
 
 def parametres_de_vol(Hp,T_C,delISA,W,**kwargs):
-    Sref=520        # [pi^2]
-    MACref=8.286    # [pi]
-    gamma=1.4       # Rapport des chaleurs specifiques de l'air [-]
+    Sref=520                # [pi^2] Surface ailaire par défaut
+    MACref=8.286            # [pi] Corde par défaut
+    gamma=1.4               # Rapport des chaleurs specifiques de l'air [-]
     R = 287.052874          # Constante des gaz [J/Kg-K]
     fts_to_kts =0.5924838   # 1 pi/s = 0.5924838 kts
-    m_to_ft = 3.28084
+    m_to_ft = 3.28084       # Conversion mètre à pieds
+    CtoK=273.15             # Conversion Celsius à Kelvin
+    p_0=2116.22             #(lb/pi^2) Pression au niveau de la mer
+    a0_kts = 661.48         # Vitesse son niveau mer ISA [kts]
+    K=1                     # Facteur de récupération de sonde
+    nz=1                    # poids = nz*masse (en virage)
     
-    # CONSTANTES IMPORTEES, À trier et commenter !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    CtoK=273.15
-    p_0=2116.22 #(lb/pi^2)
-    a0_kts = 661.48 # Vitesse son niveau mer ISA [kts]
-    K=1             # Facteur de récupération de sonde
-    nz=1            # poids = nz*masse (en virage)
-    # FIN ##########################
+    # Chois des dimensions de référence pour S et l
     
     if kwargs.get('S'):
         S=kwargs.get('S')
@@ -87,7 +86,8 @@ def parametres_de_vol(Hp,T_C,delISA,W,**kwargs):
             
             M = V_kts/a_kts
         
-            
+    # Calcul de pression d'impact et de la vitesse calibrée lorsque 
+    #la vitesse calibrée n'est pas donnée en entrée.        
         qc = p*((1+((gamma-1)/2)*M**2)**(gamma/(gamma-1))-1)
         Vc_kts = a0_kts*np.sqrt(5*((qc/p_0+1)**0.2857-1))
         Vc_fts = Vc_kts/fts_to_kts
