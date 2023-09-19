@@ -2,8 +2,7 @@
 """
 Created on Tue Sep  5 17:13:23 2023
 
-@author: Vincent
-"""
+@author: Vincent M & Rosalie T"""
 import numpy as np
 import math
 from TP1A import atmosphere

@@ -2,8 +2,7 @@
 """
 Created on Tue Sep 12 16:22:09 2023
 
-@author: Vincent
-"""
+@author: Vincent M & Rosalie T"""
 
 import numpy as np
 import math

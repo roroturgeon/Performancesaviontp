@@ -1,4 +1,4 @@
-
+"""@author: Vincent M & Rosalie T"""
 import numpy as np
 import math 
 
