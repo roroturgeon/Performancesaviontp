@@ -28,7 +28,7 @@ def atmosphere(Hp,T_C,delISA):
             sigma=delta/theta
             rho=sigma*rho_0
             
-        elif Hp>38089 and Hp<=65617:
+        elif Hp>36089 and Hp<=65617:
             delISA=T_C
             T_C=T_tropo_C+delISA 
             T_K=T_tropo_K+delISA 
@@ -50,7 +50,7 @@ def atmosphere(Hp,T_C,delISA):
             sigma=delta/theta
             rho=sigma*rho_0
             
-        elif Hp>38089 and Hp<=65617:
+        elif Hp>36089 and Hp<=65617:
             T_ISA=T_0_C-labda*Hp
             delISA=T_C-T_ISA
             theta=T_K/T_0_K
