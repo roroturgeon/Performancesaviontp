@@ -14,18 +14,31 @@ from TP1B import parametres_de_vol
 ###Question 4:
     
 Vc=270 #noeuds
-Hp=0 #pi
-T_C=0 #C ou K dépendemment de delISA
+Hp=3000 #pi
 delISA=True
 W=40000 #lbs
 
-a_kts, a_fts, M, V_kts, V_fts, Ve_kts, Ve_fts, Vc_kts, Vc_fts, pt, q, qc, Tt_C, Tt_K, mu, RN, CL = parametres_de_vol(Hp, T_C, delISA,W, Vc=Vc)
+###Calcul des deux vitesses
+a=-55
+b=55
+V_kts=0
+while abs(V_kts-Vc)>=0.0001:
+    m=(a+b)/2
+    a_kts, a_fts, M, V_kts, V_fts, Ve_kts, Ve_fts, Vc_kts, Vc_fts, pt, q, qc, Tt_C, Tt_K, mu, RN, CL = parametres_de_vol(Hp, m, delISA,W, Vc=Vc)    
+    if V_kts<Vc:
+        a=m
+    else:
+        b=m
+
 print('Question 4:')
-print("TAS = %.7g noeuds" % (V_kts))
+print("TAS = %.4g noeuds" % (V_kts))
 print("CAS = %.7g noeuds" % (Vc_kts))
+print("delISA = %.6g C" % (m))
 
 
 ###Question 5:
+Vc=275
+T_C=0 #C ou K dépendemment de delISA
     
 ###Tendance de la variation de Mach en fonction de l'altitude de pression
 Mref=0.76
@@ -59,11 +72,7 @@ while abs(M-Mref)>=0.0001:
 print('Question 5:')
 print("Altitude de pression = %.9g pieds" % (m))  
 
-Vc=275 #noeuds
 Hp=31992.1875  #pi
-T_C=0 #C ou K dépendemment de delISA
-delISA=True
-W=40000 #lbs 
 
 
 ###Vérification que la température n'a pas d'influence grâce à un graphique
@@ -91,6 +100,9 @@ T_C=0 #C car delISA est False, donc une température est donnée. Le delISA est 
 delISA=False
 W=40000 #lbs 
 
+
+###Vérification de l'allure de la variation de température totale
+
 Vce=np.linspace(100,275,200)
 Tt_Ce=np.zeros(len(Vce))
 for k in range(len(Vce)):
@@ -104,6 +116,9 @@ plt.legend(loc='best')
 plt.grid(True)
 plt.savefig('TtvsVc.png', dpi = 300, bbox_inches='tight')
 plt.show()
+
+
+###Calcul de la vitesse calibrée
 
 Tref=10
 a=100
@@ -119,6 +134,7 @@ while abs(Tt_C-Tref)>=0.0001:
     
 print('Question 6:')    
 print("CAS = %.7g noeuds" % (m))
+
 
 
 
