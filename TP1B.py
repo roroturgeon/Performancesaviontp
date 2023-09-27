@@ -8,6 +8,59 @@ import numpy as np
 from TP1A import atmosphere
 
 def parametres_de_vol(Hp,T_C,delISA,W,**kwargs):
+    """
+    Parameters
+    ----------
+    Hp : TYPE
+        DESCRIPTION.
+    T_C : TYPE
+        DESCRIPTION.
+    delISA : TYPE
+        DESCRIPTION.
+    W : TYPE
+        DESCRIPTION.
+    **kwargs : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    a_kts : TYPE
+        DESCRIPTION.
+    a_fts : TYPE
+        DESCRIPTION.
+    M : TYPE
+        DESCRIPTION.
+    V_kts : TYPE
+        DESCRIPTION.
+    V_fts : TYPE
+        DESCRIPTION.
+    Ve_kts : TYPE
+        DESCRIPTION.
+    Ve_fts : TYPE
+        DESCRIPTION.
+    Vc_kts : TYPE
+        DESCRIPTION.
+    Vc_fts : TYPE
+        DESCRIPTION.
+    pt : TYPE
+        DESCRIPTION.
+    q : TYPE
+        DESCRIPTION.
+    qc : TYPE
+        DESCRIPTION.
+    Tt_C : TYPE
+        DESCRIPTION.
+    Tt_K : TYPE
+        DESCRIPTION.
+    mu : TYPE
+        DESCRIPTION.
+    RN : TYPE
+        DESCRIPTION.
+    CL : TYPE
+        DESCRIPTION.
+
+    """
+    
     Sref=520                # [pi^2] Surface ailaire par défaut
     MACref=8.286            # [pi] Corde par défaut
     gamma=1.4               # Rapport des chaleurs specifiques de l'air [-]
@@ -26,7 +79,7 @@ def parametres_de_vol(Hp,T_C,delISA,W,**kwargs):
         S=kwargs.get('S')
     else:
         S=Sref
-        
+    print("S="+str(S))
     if kwargs.get('l'):
         l=kwargs.get('l')
     else:
