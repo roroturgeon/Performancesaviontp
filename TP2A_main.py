@@ -22,5 +22,6 @@ nz=1
 
 
 CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA, nzSw, phiSw, nzBuffet = forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol, nz=nz, M=M)
-
+print(DCDCNTL)
+print(DCNTL)
 

@@ -163,22 +163,23 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
     Di = CDi*q*S
     Dp = Cdp*q*S
     DComp = dCDComp*q*S
+    CL_9=CL*(1+(l/Lt)*(0.09-CG))
     
     # Calcul AOA
     if dVolets==0 and pRoues=="up":
-        AOA_9 = (CL-0.05)/0.1
+        AOA_9 = (CL_9-0.05)/0.1
         CLstall_9 = .05+.1*14.7
     elif dVolets==0 and pRoues=="down":
-        AOA_9 = (CL-0.00)/0.1
+        AOA_9 = (CL_9-0.00)/0.1
         CLstall_9 = .1*14.7
     elif dVolets==20 and pRoues=="up":
-        AOA_9 = (CL-0.25)/0.1
+        AOA_9 = (CL_9-0.25)/0.1
         CLstall_9 = .25+.1*14.6
     elif dVolets==20 and pRoues=="down":
-        AOA_9 = (CL-0.20)/0.1
+        AOA_9 = (CL_9-0.20)/0.1
         CLstall_9 = .2+.1*14.6
     elif dVolets==45 and pRoues=="down":
-        AOA_9 = (CL-0.5)/0.1
+        AOA_9 = (CL_9-0.5)/0.1
         CLstall_9 = .5+.1*14.4
     
     CLstall = CLstall_9/(1+l/Lt*(0.09-CG))
