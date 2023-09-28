@@ -6,16 +6,21 @@ Created on Tue Sep 26 17:08:57 2023
 """
 
 import numpy as np
-import math 
 from TP2A import forces
 
 Hp=30000
 T_C=15
 delISA=True
 W=40000
+M=.74
 dVolets=0
 pRoues="up"
-rMoteur="MCR AEO"
+rMoteur="AEO"
+pVol="MCR"
 CG=.25
+nz=1
 
-S=forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, S=410, VVsr=1.23, nz=2)
+
+CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA, nzSw, phiSw, nzBuffet = forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol, nz=nz, M=M)
+
+
