@@ -21,21 +21,28 @@ vitesse_arr=np.array([{"M":.74},{"VVsr":1.23},{'VVsr':1.13},{'Vc':140},{'Vc':140
 phi_nz_arr=np.array([{"nz":1},{"nz":1},{"nz":1},{'phi':40},{"nz":1},{"nz":1},{"nz":1},{"nz":1}])
 
 
-
 for i in range(len(Hp_arr)):
     print("\n\n================================")
     print("=---- CAS "+str(i+1)+" -----=")
     print("================================")  
     print("    Données : ")
     print("Hp = ",Hp_arr[i],", T_C = ",T_C_arr[i], ", delISA = ",delISA_arr[i],", W = ", W_arr[i],", CG = ", CG_arr[i], ", dVolets = ",dVolets_arr[i],", pRoues = ", pRoues_arr[i], ", rMoteur = ",rMoteur_arr[i],", pVol = ", pVol_arr[i], ", phi/nz = ",phi_nz_arr[i], ", vitesse = ",vitesse_arr[i])
-    CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA, nzSw, phiSw, nzBuffet = forces(Hp_arr[i],T_C_arr[i], delISA_arr[i], W_arr[i], CG_arr[i], dVolets_arr[i],pRoues_arr[i], rMoteur_arr[i], pVol_arr[i], **phi_nz_arr[i], **vitesse_arr[i])
+    CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA, nzSw, phiSw, nzBuffet,q = forces(Hp_arr[i],T_C_arr[i], delISA_arr[i], W_arr[i], CG_arr[i], dVolets_arr[i],pRoues_arr[i], rMoteur_arr[i], pVol_arr[i], **phi_nz_arr[i], **vitesse_arr[i])
     print("    Résultats : ")
     print("CD = ", CD)
     print("CL = ",CL)
     print("L/D = ",finesse)
     print("Cdp = ",Cdp)
     print("Cdi = ",CDi)
+    print("q = ",q)
+    print("CDcntl = ",DCDCNTL)
+    print("CDwm = ", DCDWM)
     print("T = ",T)
+    print("D = ",D)
+    print("AOA = ", AOA)
+    print("Nz sw = ", nzSw)
+    print("phi sw = ", phiSw)
+    print("Nz buffet = ", nzBuffet)
 
 
 # Hp=30000
