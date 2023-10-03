@@ -57,6 +57,7 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
     # Definition globale nz
     if kwargs.get("nz"):
         nz=kwargs.get("nz")
+        phi=np.rad2deg(np.arccos(1/nz))
     elif kwargs.get("phi"):
         phi=kwargs.get("phi")
         nz=1/np.cos(np.deg2rad(phi))
@@ -202,4 +203,4 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
     else :
         nzBuffet=0
     
-    return CL, L, CD, D, L/D, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet,q
+    return CL, L, CD, D, L/D, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi
