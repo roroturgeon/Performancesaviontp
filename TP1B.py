@@ -79,7 +79,7 @@ def parametres_de_vol(Hp,T_C,delISA,W,**kwargs):
         S=kwargs.get('S')
     else:
         S=Sref
-    print("S="+str(S))
+ #   print("S="+str(S))
     if kwargs.get('l'):
         l=kwargs.get('l')
     else:

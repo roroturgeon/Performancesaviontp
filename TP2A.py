@@ -12,11 +12,11 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
     
     
     # Liste des paramètres utilisés du fichier avion de référence
-    Sref=520                # [pi^2] Surface ailaire par défaut
-    fts_to_kts =0.5924838   # 1 pi/s = 0.5924838 kts
-    DCDLG = 0.0200          # Augmentation de drag pour roues baissées
-    MACref=8.286            # [pi] Corde par défaut
-    Lt    =  40.56          # Bras de levier de la queue [pieds]
+    Sref = 520                  # [pi^2] Surface ailaire par défaut
+    fts_to_kts = 0.5924838      # 1 pi/s = 0.5924838 kts
+    DCDLG = 0.0200              # Augmentation de drag pour roues baissées
+    MACref = 8.286              # [pi] Corde par défaut
+    Lt    =  40.56              # Bras de levier de la queue [pieds]
 
     # Corde aérodynamique moyenne
     
@@ -30,22 +30,27 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
         CLmax=1.65
         K = .0364
         Cdp = 0.0206 
+        CDLDG = 0
     elif dVolets==0 and pRoues=="down":
         CLmax=1.60
         K = .0364
-        Cdp = 0.0206 + DCDLG
+        Cdp = 0.0206
+        CDLDG = DCDLG
     elif dVolets==20 and pRoues=="up":
         CLmax=1.85
         K = .0334
         Cdp = 0.0465
+        CDLDG = 0
     elif dVolets==20 and pRoues=="down":
         CLmax=1.80
         K = .0334
-        Cdp = 0.0465 + DCDLG
+        Cdp = 0.0465 
+        CDLDG = DCDLG
     elif dVolets==45 and pRoues=="down":
         CLmax=2.10
         K = .0301
-        Cdp = 0.1386 + DCDLG
+        Cdp = 0.1386 
+        CDLDG = DCDLG
     else : 
         print("ERREUR CLmax(dVolets/pRoues)")
     
@@ -69,17 +74,15 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
         VVsr=kwargs.get("VVsr")
         CL_2=CLmax/(VVsr**2)    
         q=W*nz/(CL_2*S)
-        print(q)
         theta,delta,sigma,T_C,T_K,delISA,p,rho = atmosphere(Hp, T_C, delISA)
         V_fts = np.sqrt(q/0.5/rho)# Vitesse et fts car calculee avec q 
         V = V_fts*fts_to_kts 
         a_kts, a_fts, M, V_kts, V_fts, Ve_kts, Ve_fts, Vc_kts, Vc_fts, pt, q, qc, Tt_C, Tt_K, mu, RN, CL = parametres_de_vol(Hp, T_C, delISA, W, V=V, **kwargs)
-        print(q)
         CL=CL_2
     else:
+        theta,delta,sigma,T_C,T_K,delISA,p,rho = atmosphere(Hp, T_C, delISA)
         a_kts, a_fts, M, V_kts, V_fts, Ve_kts, Ve_fts, Vc_kts, Vc_fts, pt, q, qc, Tt_C, Tt_K, mu, RN, CL = parametres_de_vol(Hp, T_C, delISA, W, **kwargs)
         CL=nz*CL
-        print(CL)
     
     # Calcul des sorties (forces et coefficients)
     L = nz*W
@@ -87,6 +90,7 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
     #Pousse en lb
     T=0
     MTOFN = ((8775 - 0.1915*Hp) - (8505-0.195*Hp)*M)
+
     if delISA>15:
         MTOFN=MTOFN*(1-0.01*(delISA-15))   
     MCLFN = (5690 - 0.0968*Hp) - (1813-0.0333*Hp)*M
@@ -98,13 +102,14 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
     IDLEFN = 600 - 1000*M
     
     
-    
     if rMoteur == "AEO":
         nbMot = 2
         if pVol == "MTO" or pVol == "GA":
             T = nbMot*MTOFN
         elif pVol == "MCL":
-            T=nbMot*MCLFN            
+            T=nbMot*MCLFN       
+        elif pVol == "MCT":
+            T = nbMot*MCTFN
         elif pVol == "MCR":
             T = nbMot*MCRFN
         elif pVol == "IDLE":
@@ -137,7 +142,6 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
         DCDCNTL = kasyma*CT*CT
         DCNTL = DCDCNTL*q*S
         
-        
 
     else : 
         print("ERREUR Regime moteur incorrect")
@@ -152,14 +156,11 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
     else:
         dCDComp = 0
     
-
-    
-    dCDTRN = K*CL*CL*(nz*nz-1)
-    
-    CD = Cdp+K*CL*CL+dCDComp + DCDCNTL + DCDWM + dCDTRN
+    dCDTRN = 0# K*CL*CL*(nz*nz-1)
+    CDi = K*CL*CL
+    CD = Cdp+CDLDG+CDi+dCDComp + DCDCNTL + DCDWM + dCDTRN
     D = CD*q*S
 
-    CDi = K*CL*CL
     Di = CDi*q*S
     Dp = Cdp*q*S
     DComp = dCDComp*q*S
@@ -183,12 +184,13 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
         CLstall_9 = .5+.1*14.4
     
     CLstall = CLstall_9/(1+l/Lt*(0.09-CG))
+    
     # Conditions stall warning
     nzSw = CLstall*q*S/W
     phiSw = np.rad2deg(np.arccos(1/nzSw))
     
     # Calcul buffet
-    if dVolets == 0:
+    if dVolets == 0 and M>=.275:
         MACH = np.linspace(.275,.9,26)
         CL_buffet_arr = np.array([1.3424,  1.3199,  1.2974,  1.2667,  1.2310,  1.1930,  1.1551,  1.1191  ,
               1.0863,  1.0577,  1.0337,  1.0142,  0.9989,  0.9868,  0.9764,  0.9659,  
@@ -199,7 +201,5 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
         nzBuffet = CL_buffet/CL
     else :
         nzBuffet=0
-    
-        
     
     return CL, L, CD, D, L/D, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet
