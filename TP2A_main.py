@@ -45,6 +45,11 @@ for i in range(len(Hp_arr)):
     print("Nz buffet = ", nzBuffet)
 
 
+"""
+Page 7 unité 5 des NDC isoler dans formule, «dVg/dt» exactement pour la dernière sortie
+
+"""
+
 # Hp=30000
 # T_C=15
 # delISA=True
