@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct  3 16:22:42 2023
+AER8375 - Performances avion
 
-@author: Rosalie
+Script principal d'exécution du TP2C
+
+@author: Rosalie Turgeon & Vincent Moreau
+         ( 2072092 )       ( 2075782 )
 """
 
 import numpy as np
@@ -10,6 +13,39 @@ from TP1A import atmosphere
 from TP1B import parametres_de_vol
 from TP2A import forces
 from TP2B import montee
+
+
+
+"""
+Question 7
+"""
+print("===================")
+print("=   Question 7    =")
+print("===================")
+
+
+
+Hp=5000
+T_C=0
+delISA=True
+W=35000
+dVolets=20
+pRoues="up"
+rMoteur="OEI"
+pVol="MTO"
+CG=.15
+Vconst="CAS"
+VVsr=1.13
+nz=1
+
+grad, RoCg_min, RoCp_min, AF,a=montee(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol, Vconst, VVsr=VVsr,nz=nz)
+
+erreur = 1  # Écart de départ
+eps=0.001   # Tolélance d'écart entre calcul de deux valeurs de ROC pour critère d'arrêt
+
+while erreur>eps:
+    
+    
 
 # Hp=30000
 # T_C=15

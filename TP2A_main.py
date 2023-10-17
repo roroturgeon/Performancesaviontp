@@ -27,7 +27,7 @@ for i in range(len(Hp_arr)):
     print("================================")  
     print("    Données : ")
     print("Hp = ",Hp_arr[i],", T_C = ",T_C_arr[i], ", delISA = ",delISA_arr[i],", W = ", W_arr[i],", CG = ", CG_arr[i], ", dVolets = ",dVolets_arr[i],", pRoues = ", pRoues_arr[i], ", rMoteur = ",rMoteur_arr[i],", pVol = ", pVol_arr[i], ", phi/nz = ",phi_nz_arr[i], ", vitesse = ",vitesse_arr[i])
-    CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA, nzSw, phiSw, nzBuffet,phi = forces(Hp_arr[i],T_C_arr[i], delISA_arr[i], W_arr[i], CG_arr[i], dVolets_arr[i],pRoues_arr[i], rMoteur_arr[i], pVol_arr[i], **phi_nz_arr[i], **vitesse_arr[i])
+    CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA, nzSw, phiSw, nzBuffet,phi,M = forces(Hp_arr[i],T_C_arr[i], delISA_arr[i], W_arr[i], CG_arr[i], dVolets_arr[i],pRoues_arr[i], rMoteur_arr[i], pVol_arr[i], **phi_nz_arr[i], **vitesse_arr[i])
     print("    Résultats : ")
     print("CD = ", CD)
     print("CL = ",CL)
