@@ -50,7 +50,8 @@ grad_arr = np.zeros_like(W_arr)
 for i in range(len(W_arr)):
     grad, RoCg_min, RoCp_min, AF,a=montee(Hp, T_C, delISA, W_arr[i], CG, dVolets, pRoues, rMoteur, pVol, Vconst, VVsr=VVsr,nz=nz)
     grad_arr[i] = grad
-    
+plt.figure(dpi=500) 
+plt.title("Gradient de monté selon le poids")
 plt.plot(W_arr, grad_arr)
 plt.xlabel("Poids [lbs]")
 plt.ylabel("Gradient [-]")
@@ -113,8 +114,9 @@ grad_arr = np.zeros_like(M_arr)
 for i in range(len(M_arr)):
     grad, RoCg_min, RoCp_min, AF,a=montee(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol, Vconst, M=M_arr[i],nz=nz)
     grad_arr[i] = grad
-plt.figure()    
+plt.figure(dpi=500)    
 plt.plot(M_arr, grad_arr)
+plt.title("Gradient de monté selon le nb de Mach")
 plt.xlabel("M [-]")
 plt.ylabel("Gradient [-]")
 
