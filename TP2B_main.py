@@ -41,7 +41,7 @@ from TP2B import montee
 # nz=1
 
 # grad, RoCg_min, RoCp_min, AF,a=montee(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol, Vconst, VVsr=VVsr,nz=nz)
-# print(AF)
+# # print(AF)
 
 Hp=5000
 T_C=0

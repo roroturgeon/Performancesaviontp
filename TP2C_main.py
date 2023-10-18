@@ -61,7 +61,7 @@ W_min = 10000     # Valeurs de vitesse initiale maximales et minimales pour ité
 W_max = 100000     # Valeurs de vitesse initiale maximales et minimales pour itérer
 
 erreur = 1      # Écart de départ pour initialiser
-eps=0.0001      # Tolélance d'écart entre calcul de deux valeurs de gradient pour critère d'arrêt
+eps=0.000001      # Tolélance d'écart entre calcul de deux valeurs de gradient pour critère d'arrêt
 grad_target=0.03
 nbiter=0
 while erreur>eps:
@@ -104,6 +104,12 @@ pVol = "MCT"
 Vconst = "CAS"
 CG=.25
 nz=1
+
+M=0.2499999999
+grad, RoCg_min, RoCp_min, AF,a = montee(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol, Vconst, M=M,nz=nz)
+
+print("GRAD =",grad)
+
 
 # Génération du graphique illustrant la relation entre le gradient et le nombre de Mach
 M_min = 0.1     # Valeurs de vitesse initiale maximales et minimales pour itérer
