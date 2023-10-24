@@ -29,6 +29,8 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
     Hp1=Hpi
     Hp2=Hp1+increment
     Wmoy=Wi
+    t1=0
+    d1=0
     while Hp2<Hpf:
         Hpmoy=(Hp1+Hp2)/2
         deltaHp=Hp2-Hp1
@@ -39,8 +41,17 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
             Vc=ViC_kts
             Vconst= "CAS"
             a_kts, a_fts, M, V_kts, V_fts, Ve_kts, Ve_fts, Vc_kts, Vc_fts, pt, q, qc, Tt_C, Tt_K, mu, RN, CL=parametres_de_vol(Hpmoy, T_C, delISA, Wmoy, Vc=Vc, **kwargs)
-            CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M=forces(Hpmoy, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, **kwargs)
+            CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M=forces(Hpmoy, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol,Vc=Vc, **kwargs)
             grad, RoCg_min, RoCp_min, AF,a=montee(Hpmoy, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, Vconst,Vc=Vc, **kwargs)
+            RoCg_min*=signe
+            RoCg_s=RoCg_min/60
+            dt=deltaH/RoCg_s
+            t2=t1+dt
+            deltadis=V_fts*dt
+            d2=d1+deltadis
+            SFC = 0.58 + (0.035 * Hpmoy/ 10000)
+            Wfmoy=SFC*T
+            
         elif Hp1<30000:
             Vc=VKCAS
             Vconst= "CAS"
