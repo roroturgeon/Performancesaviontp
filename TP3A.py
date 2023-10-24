@@ -17,7 +17,12 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
     increment=1000          #Incrément utilisé pour l'intérgration
     CG=0.09             #CG pour ne pas impacter les données
  
-  
+    if Hpf>Hpi:
+        signe=1
+    else:
+        signe=-1
+    
+    increment*=signe
 
  
     
@@ -42,6 +47,10 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
         else:
             M=MACH
             Vconst= "MACH"
+            
+            
+        Hp1=Hp2
+        Hp2=Hp1+increment
             
     
     
