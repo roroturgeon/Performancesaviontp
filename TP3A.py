@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from TP1A import atmosphere
 from TP1B import parametres_de_vol
 from TP2A import forces
@@ -14,26 +15,27 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
     ViC_kts=250          #Vitesse calibrée initiale sous 10 000 ft (kts)
     fts_to_kts = 0.5924838      # 1 pi/s = 0.5924838 kts
     ViC_fts=ViC_kts*fts_to_kts     #Vitesse calibrée initiale sous 10 000 ft (fts)
-    increment=1000          #Incrément utilisé pour l'intérgration
-    CG=0.09             # CG pour ne pas impacter les données
+    increment =100          #Incrément utilisé pour l'intérgration
+    CG=0.09              # CG pour ne pas impacter les données
     Tneg = 1200         # Poussee pour calcul de SFC si poussee neg
     kts_to_fts=1.6878
+    ft_per_NM = 6076.115
     
     s1 = 10000
-    s2 = 30000
+
  
     if Hpf>Hpi:
         signe=1
     else:
         signe=-1
-    
+
     increment*=signe # 1 si monte, -1 si descend
     palier_10k=False
     palier_30k=False
  
     # Altitudes pour plage d'integration (initiales)
     Hp1=Hpi
-    Hp2=Hp1+increment*signe
+    Hp2=Hp1+increment
     
     # Initialisation des compteurs d'intégration
     Wmoy=Wi
@@ -41,10 +43,48 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
     t1=0
     d1=0
     
+    # Initialisation compteurs segment acceleration
+    acc_10k = 0
+    V_avg_10k = 0
+    dt_10k = 0
+    dd_10k = 0
+    df_10k = 0 
+    W_10k = 0    
+    
     # Initialisation des compteurs et epsilon pour while
-    eps=1
+    eps=0.001
     nbiter=0
     
+    
+    
+    # Calcul altitude transition
+    h_range = np.linspace(0, 60000)
+    M_range = np.zeros_like(h_range)
+    for i in range(len(h_range)):
+        M_range[i] = parametres_de_vol(h_range[i], T_C, delISA, Wmoy, Vc=VKCAS, **kwargs)[2]
+    plt.plot(h_range, M_range)
+    plt.hlines(MACH, h_range[0], h_range[-1])
+    
+    # Methode bissection pour alt transition
+    h_min = 0
+    h_max = 60000
+    M_target = MACH
+    
+    epsilon = 0.001
+    erreur = 1
+    while abs(erreur) > epsilon:
+        h_try = .5*h_min+.5*h_max
+        M_test = parametres_de_vol(h_try, T_C, delISA, Wmoy, Vc=VKCAS, **kwargs)[2]
+        erreur = M_target-M_test
+        if erreur>0 : 
+            h_min = h_try
+        else: 
+            h_max = h_try
+        # print(h_try)
+    s2 = h_try
+    # Arondissement au centième de pied
+    s2 = 100*round(s2/100)
+
     """
     Fonction d'incrémentation de l'altitude entre les plages d'intégration
     """
@@ -57,11 +97,16 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
         
         return Hp1,Hp2
     
-    
-    RoCg_min=0
-    
-    while ((Hp1<Hpf and signe == 1) or (Hp1> Hpf and signe==-1)) and ((signe==1 and RoCg_min>ROC_min) or signe==-1 or nbiter==0) :
-        
+    last_run=False
+    # Initialisation ROOCP pour demarrage while
+    RoCp_min=0
+    while ((Hp1<=Hpf and signe == 1) or (Hp1>= Hpf and signe==-1)) and ((signe==1 and RoCp_min>ROC_min) or signe==-1 or nbiter==0) :
+        if last_run:
+            break
+        if Hp1==Hpf : 
+            last_run=True
+
+            
         print(nbiter)
         print("Hp1 = ",Hp1, ", Hp2 = ", Hp2)
         nbiter += 1
@@ -91,35 +136,40 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
                 
                 V_kts1=parametres_de_vol(Hp1, T_C, delISA, Wmoy,Vc=ViC_kts,  **kwargs)[3]
                 V_kts2=parametres_de_vol(Hp1, T_C, delISA, Wmoy,Vc=VKCAS,  **kwargs)[3]
+                # print(V_kts1)
+                # print(V_kts2)
+                
+                V_fts1=V_kts1*kts_to_fts
+                V_fts2=V_kts2*kts_to_fts
+                V=(V_kts1+V_kts2)/2
+                V_fts=V*kts_to_fts
+                V_avg_10k = V_fts
+                CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M=forces(Hp1, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, V=V, **kwargs)
+                acc_10k=((T-D)/Wmoy)*g
+                dt=(V_fts2-V_fts1)/abs(acc_10k)
+                t1+=dt
+                dt_10k = dt
+                deltadis=(V_fts+Vvent*kts_to_fts)*dt
+                dd_10k = deltadis
+                d1+=deltadis
+                SFC = 0.58 + (0.035 * Hp1/ 10000)
+                if T>=0:
+                    Wfmoy=SFC*T/(60**2)
+                else:
+                    Wfmoy=SFC*Tneg/(60**2)
+                    
+                deltafuel=Wfmoy*dt
+                df_10k = deltafuel
+                fuel1+=deltafuel
+                W_10k = Wmoy
+                Wmoy=Wmoy-deltafuel
+                
                 
                 palier_10k = False
-            elif palier_30k:
-                print("Calculer l'acceleration du palier 30k")
-                
-                V_kts1=parametres_de_vol(Hp1, T_C, delISA, Wmoy,Vc=VKCAS,  **kwargs)[3]
-                V_kts2=parametres_de_vol(Hp1, T_C, delISA, Wmoy,M=MACH,  **kwargs)[3]
-                
+            elif palier_30k:            
                 palier_30k = False
             
-            V_fts1=V_kts1*kts_to_fts
-            V_fts2=V_kts2*kts_to_fts
-            V=(V_kts1+V_kts2)/2
-            V_fts=V*fts_to_kts    
-            CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M=forces(Hp1, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, V=V, **kwargs)
-            acc=((T-D)/Wmoy)*g
-            dt=(V_fts2-V_fts1)/acc
-            t1+=dt
-            deltadis=V_fts*dt
-            d1+=deltadis
-            SFC = 0.58 + (0.035 * Hp1/ 10000)
-            if T>=0:
-                Wfmoy=SFC*T/(60**2)
-            else:
-                Wfmoy=SFC*Tneg/(60**2)
-                
-            deltafuel=Wfmoy*dt
-            fuel1+=deltafuel
-            Wmoy=Wmoy-deltafuel
+            
             Hp1+=eps*signe
         
         else: 
@@ -145,12 +195,15 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
             grad, RoCg_min, RoCp_min, AF,a=montee(Hpmoy, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, Vconst, **kwargs, **vitesse_kwarg)
                
             RoCg_s=RoCg_min/60
+            # print("ROCP MIN = ",RoCp_min)
+
             
-            if RoCg_min>=ROC_min and signe==1:
+            if RoCp_min>=ROC_min and signe==1 or signe==-1:
+
                 
                 dt=deltaH/RoCg_s
                 t1+=dt
-                deltadis=V_fts*dt
+                deltadis=(V_fts+Vvent*kts_to_fts)*dt
                 d1+=deltadis
                 SFC = 0.58 + (0.035 * Hpmoy/ 10000)
                 if T>=0:
@@ -162,7 +215,7 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
                 fuel1+=deltafuel
                 Wmoy=Wmoy-deltafuel
                 
-            else:
+            elif RoCp_min<ROC_min and signe==1:
                 print("Erreur: L'avion n'arrive pas à monter à un rythme décent")
                 
             
@@ -170,9 +223,11 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
             Hp1,Hp2 = incrementation(Hp1,Hp2,signe,increment)
             
    
+
+    d1_NM = d1/ft_per_NM
+    dd_10k_NM = dd_10k/ft_per_NM
     
-    
-    return
+    return t1, d1_NM, fuel1, s2, acc_10k, V_avg_10k, dt_10k, dd_10k_NM, df_10k, W_10k
     
 
 
