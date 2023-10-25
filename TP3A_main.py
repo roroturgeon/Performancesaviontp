@@ -17,8 +17,8 @@ from TP3A import montee_descente
 Cas 1
 """
 
-Hpi = 42587
-Hpf = 5300
+Hpi = 1500
+Hpf = 41000
 delISA = True
 T_C = 10
 Vvent = 20
