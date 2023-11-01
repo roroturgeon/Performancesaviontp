@@ -18,7 +18,7 @@ def montee(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, Vconst, **kwargs)
     g=32.18503937007874     #Accélération gravitationnelle (pi/s**2)
     
     
-    CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA, nzSw, phiSw, nzBuffet,phi, M= forces(Hp,T_C, delISA, W, CG, dVolets,pRoues, rMoteur, pVol, **kwargs)
+    CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA, nzSw, phiSw, nzBuffet,phi, M,K= forces(Hp,T_C, delISA, W, CG, dVolets,pRoues, rMoteur, pVol, **kwargs)
     
     if kwargs.get('M'):
         a_kts, a_fts, M, V_kts, V_fts, Ve_kts, Ve_fts, Vc_kts, Vc_fts, pt, q, qc, Tt_C, Tt_K, mu, RN, CL=parametres_de_vol(Hp, T_C, delISA, W,**kwargs)
@@ -60,10 +60,6 @@ def montee(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, Vconst, **kwargs)
     
     ###Accélération selon l'axe de la trajectoire de vol
     a=((RoCg_s-((V_fts*(T-D))/W))/(-V_fts/g))/g
-    
-    
-    
-    
     
     
     return grad, RoCg_min, RoCp_min, AF,a

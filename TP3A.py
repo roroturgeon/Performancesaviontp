@@ -1,3 +1,13 @@
+"""
+AER8375 - Performances avion
+
+Fonctions du TP3A
+
+@author: Rosalie Turgeon & Vincent Moreau
+         ( 2072092 )       ( 2075782 )
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from TP1A import atmosphere
@@ -5,8 +15,79 @@ from TP1B import parametres_de_vol
 from TP2A import forces
 from TP2B import montee
 
-def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rMoteur, pVol, **kwargs):
+
+def Hp_trans(T_C, delISA, Wmoy, VKCAS, MACH):
     
+    # Calcul altitude transition
+    h_range = np.linspace(0, 60000)
+    M_range = np.zeros_like(h_range)
+    for i in range(len(h_range)):
+        M_range[i] = parametres_de_vol(h_range[i], T_C, delISA, Wmoy, Vc=VKCAS)[2]
+    plt.plot(h_range, M_range)
+    plt.hlines(MACH, h_range[0], h_range[-1])
+    
+    # Methode bissection pour alt transition
+    h_min = 0
+    h_max = 60000
+    M_target = MACH
+    
+    epsilon = 0.001
+    erreur = 1
+    while abs(erreur) > epsilon:
+        h_try = .5*h_min+.5*h_max
+        M_test = parametres_de_vol(h_try, T_C, delISA, Wmoy, Vc=VKCAS)[2]
+        erreur = M_target-M_test
+        if erreur>0 : 
+            h_min = h_try
+        else: 
+            h_max = h_try
+        # print(h_try)
+    s2 = h_try
+    # Arondissement au centième de pied
+    s2 = 100*round(s2/100)
+    
+    return s2
+
+
+def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rMoteur, pVol, **kwargs):
+    """
+    
+
+    Parameters
+    ----------
+    Hpi : TYPE
+        DESCRIPTION.
+    Hpf : TYPE
+        DESCRIPTION.
+    T_C : TYPE
+        DESCRIPTION.
+    delISA : TYPE
+        DESCRIPTION.
+    Vvent : TYPE
+        DESCRIPTION.
+    VKCAS : TYPE
+        DESCRIPTION.
+    MACH : TYPE
+        DESCRIPTION.
+    Wi : TYPE
+        DESCRIPTION.
+    dVolets : TYPE
+        DESCRIPTION.
+    pRoues : TYPE
+        DESCRIPTION.
+    rMoteur : TYPE
+        DESCRIPTION.
+    pVol : TYPE
+        DESCRIPTION.
+    **kwargs : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+
+    """
     ROC_min=100 # Taux de montée minimum (ft/min)
     labda=0.0019812 #(Celsius/pi**2)
     T_0_C=15    #Temperature au niveau de la mer
@@ -21,9 +102,8 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
     kts_to_fts=1.6878
     ft_per_NM = 6076.115
     
-    s1 = 10000
+    s1 = 10000          # Premier seuil correspondant au palier d'accélération
 
- 
     if Hpf>Hpi:
         signe=1
     else:
@@ -55,35 +135,8 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
     eps=0.001
     nbiter=0
     
+    s2=Hp_trans(T_C, delISA, Wmoy, VKCAS, MACH, **kwargs)
     
-    
-    # Calcul altitude transition
-    h_range = np.linspace(0, 60000)
-    M_range = np.zeros_like(h_range)
-    for i in range(len(h_range)):
-        M_range[i] = parametres_de_vol(h_range[i], T_C, delISA, Wmoy, Vc=VKCAS, **kwargs)[2]
-    plt.plot(h_range, M_range)
-    plt.hlines(MACH, h_range[0], h_range[-1])
-    
-    # Methode bissection pour alt transition
-    h_min = 0
-    h_max = 60000
-    M_target = MACH
-    
-    epsilon = 0.001
-    erreur = 1
-    while abs(erreur) > epsilon:
-        h_try = .5*h_min+.5*h_max
-        M_test = parametres_de_vol(h_try, T_C, delISA, Wmoy, Vc=VKCAS, **kwargs)[2]
-        erreur = M_target-M_test
-        if erreur>0 : 
-            h_min = h_try
-        else: 
-            h_max = h_try
-        # print(h_try)
-    s2 = h_try
-    # Arondissement au centième de pied
-    s2 = 100*round(s2/100)
 
     """
     Fonction d'incrémentation de l'altitude entre les plages d'intégration
@@ -144,7 +197,7 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
                 V=(V_kts1+V_kts2)/2
                 V_fts=V*kts_to_fts
                 V_avg_10k = V_fts
-                CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M=forces(Hp1, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, V=V, **kwargs)
+                CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M, K=forces(Hp1, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, V=V, **kwargs)
                 acc_10k=((T-D)/Wmoy)*g
                 dt=(V_fts2-V_fts1)/abs(acc_10k)
                 t1+=dt
@@ -191,7 +244,7 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
             deltaH=deltaHp*(T_K/TISA_K)
             
             a_kts, a_fts, M, V_kts, V_fts, Ve_kts, Ve_fts, Vc_kts, Vc_fts, pt, q, qc, Tt_C, Tt_K, mu, RN, CL=parametres_de_vol(Hpmoy, T_C, delISA, Wmoy,  **kwargs, **vitesse_kwarg)
-            CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M=forces(Hpmoy, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, **kwargs, **vitesse_kwarg)
+            CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M, K=forces(Hpmoy, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, **kwargs, **vitesse_kwarg)
             grad, RoCg_min, RoCp_min, AF,a=montee(Hpmoy, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, Vconst, **kwargs, **vitesse_kwarg)
                
             RoCg_s=RoCg_min/60

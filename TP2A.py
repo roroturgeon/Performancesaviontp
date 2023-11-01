@@ -203,4 +203,4 @@ def forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, **kwargs):
     else :
         nzBuffet=0
     
-    return CL, L, CD, D, L/D, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M
+    return CL, L, CD, D, L/D, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M, K
