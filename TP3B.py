@@ -40,6 +40,7 @@ def croisiere(Hp,T_C,delISA,Vvent,W,**kworgs):
     Hp_max=41000    # [pi]
     Hp_min=2000     # [pi]
     kts_to_fts=1.6878 # [fts per kts]
+    a0 = 661.48     # [kts]
     
     # Constantes fichier avion
     S = 520         # [pi^2]
@@ -111,28 +112,82 @@ def croisiere(Hp,T_C,delISA,Vvent,W,**kworgs):
                 SAR=(V/SFC)*(finesse)*(1/W)
                     
             elif kworgs.get("LRC"):
-                
                 #Trouvons le SAR maximum
-                CL_LRC=np.sqrt(CdP/(3*K))
-                VLRC_EAS = np.sqrt(295.37*W/(CL_LRC*S))
-                a = parametres_de_vol(Hp, T_C, delISA, W, Ve=VLRC_EAS)
-                M_LRC1,V_LRC1, Vc_LRC1 = a[2], a[3], a[7]
-                finesse= forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol_croisiere, M=M_LRC1, nz=nz)[4]
-                SAR_max=(V_LRC1/SFC)*(finesse)*(1/W)
                 
-                #calcul du SAR actuel
-                SAR=.23059
-                V=SAR*SFC*(1/finesse)*W
-                temp = parametres_de_vol(Hp, T_C, delISA, W, V=V)
-                M_LRC, Vc_LRC = temp[2],temp[7]
+                # Initialisation de la méthode de maximisation
+                step_size = 0.0001
+                eps = 0.0001
+                learn_rate = 0.001
+                iter_max = 10000
+                pente = 1           # Initialisation pente pour while
+                M_eval_position = 0.6     
+            
+                while abs(pente)>eps and iter_max>0:
+ 
+                    ret = forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol_croisiere, M=M_eval_position, nz=nz)
+                    CL,CD=ret[0],ret[2]
+                    optim = np.sqrt(CL)/CD
+                    
+                    ret_2 = forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol_croisiere, M=M_eval_position+eps,nz=nz)
+                    CL_2,CD_2=ret_2[0],ret_2[2]
+                    optim_eps = np.sqrt(CL_2)/CD_2
+                    
+                    pente=(optim_eps-optim)/eps
+                    M_eval_position += learn_rate*pente
+                    iter_max-=1
+                # print("Nombre de Mach = ",M_eval_position," [-]")
+                # print("Optim = ",optim," [-]")
+                # print("Critère d'arrêt : ",eps)
+                # print("Nombre d'itérations : ",10000-iter_max)
+
+                theta = atmosphere(Hp, T_C, delISA)[0]
+                SAR_max = (a0*np.sqrt(theta)/SFC)*(M_eval_position*CL_2/CD_2)*(1/W)
+                
+                SAR_LRC =  0.99*SAR_max
+                # print("SAR LRC = ",SAR_LRC)
+                    
+                # Methode bissection pour trouver Mach @ SAR_LRC
+                M_min = M_eval_position
+                M_max = 0.9
+
+                erreur = 1      # Écart de départ pour initialiser
+                eps=0.0001      # Tolélance d'écart entre calcul de deux valeurs de ROC pour critère d'arrêt
+                nbiter=0
+                while erreur>eps:
+                    nbiter+=1
+                    M_test=(M_min+M_max)/2
+                    
+                    ret = forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol_croisiere, M=M_test, nz=nz)
+                    CL,CD=ret[0],ret[2]
+                    SAR_test = (a0*np.sqrt(theta)/SFC)*(M_test*CL/CD)*(1/W)
+                    
+                    erreur = abs(SAR_test-SAR_LRC)
+                    if SAR_test<SAR_LRC:
+                        M_max=M_test
+                    else: 
+                        M_min=M_test
+                
+                # print("SAR LRC PAR ITER : ", SAR_test)
+                # print("M SAR .99 PAR ITER : ",M_test)
+                # print("NB ITER = ",nbiter)
+                
+                M_LRC = M_test
+
+                ret = parametres_de_vol(Hp, T_C, delISA, W, M=M_LRC)
+                
+                V, Vc_LRC = ret[3],ret[7]
+                
+                
                 if M_LRC>Mmo or Vc_LRC>Vmo:
                     print("ERREUR vitesse trop elevee pour les operations (VMD trop)")
                     print(M_LRC,">",Mmo)
                     print(Vc_LRC,">",Vmo)
                 Vc=Vc_LRC
                 M=M_LRC
+                SAR=SAR_LRC
                 b=forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol_croisiere, M=M_LRC, nz=nz)
-                D,finesse,T = b[3],b[4],b[15]
+                D,T = b[3],b[15]
+                          
             else:
                 print("ERREUR VITESSE CROISIERE NON SPECIFIEE ")
                 
