@@ -18,13 +18,13 @@ from TP2B import montee
 
 def Hp_trans(T_C, delISA, Wmoy, VKCAS, MACH):
     
-    # # Calcul altitude transition
-    # h_range = np.linspace(0, 60000)
-    # M_range = np.zeros_like(h_range)
-    # for i in range(len(h_range)):
-    #     M_range[i] = parametres_de_vol(h_range[i], T_C, delISA, Wmoy, Vc=VKCAS)[2]
-    # plt.plot(h_range, M_range)
-    # plt.hlines(MACH, h_range[0], h_range[-1])
+    # Calcul altitude transition
+    h_range = np.linspace(0, 60000)
+    M_range = np.zeros_like(h_range)
+    for i in range(len(h_range)):
+        M_range[i] = parametres_de_vol(h_range[i], T_C, delISA, Wmoy, Vc=VKCAS)[2]
+    plt.plot(h_range, M_range)
+    plt.hlines(MACH, h_range[0], h_range[-1])
     
     # Methode bissection pour alt transition
     h_min = 0
@@ -88,7 +88,7 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
         DESCRIPTION.
 
     """
-    ROC_min=300 # Taux de montée minimum (ft/min)
+    ROC_min=100 # Taux de montée minimum (ft/min)
     labda=0.0019812 #(Celsius/pi**2)
     T_0_C=15    #Temperature au niveau de la mer
     CtoK=273.15 
@@ -153,16 +153,15 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
     last_run=False
     # Initialisation ROOCP pour demarrage while
     RoCp_min=0
-    RoCp_min_1k = 0
-    while ((Hp1<=Hpf and signe == 1) or (Hp1>= Hpf and signe==-1)) and ((signe==1 and RoCp_min_1k >ROC_min and RoCp_min>ROC_min) or signe==-1 or nbiter==0) :
+    while ((Hp1<=Hpf and signe == 1) or (Hp1>= Hpf and signe==-1)) and ((signe==1 and RoCp_min>ROC_min) or signe==-1 or nbiter==0) :
         if last_run:
             break
         if Hp1==Hpf : 
             last_run=True
 
             
-        # print(nbiter)
-        # print("Hp1 = ",Hp1, ", Hp2 = ", Hp2)
+        print(nbiter)
+        print("Hp1 = ",Hp1, ", Hp2 = ", Hp2)
         nbiter += 1
         
         # Verifier si on doit rapetisser l'increment pour faire la portion 
@@ -186,7 +185,7 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
         # Calcul de palier le cas echeant
         if palier_10k or palier_30k:
             if palier_10k:
-                # print("Calculer l'acceleration du palier 10k")
+                print("Calculer l'acceleration du palier 10k")
                 
                 V_kts1=parametres_de_vol(Hp1, T_C, delISA, Wmoy,Vc=ViC_kts,  **kwargs)[3]
                 V_kts2=parametres_de_vol(Hp1, T_C, delISA, Wmoy,Vc=VKCAS,  **kwargs)[3]
@@ -247,19 +246,12 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
             a_kts, a_fts, M, V_kts, V_fts, Ve_kts, Ve_fts, Vc_kts, Vc_fts, pt, q, qc, Tt_C, Tt_K, mu, RN, CL=parametres_de_vol(Hpmoy, T_C, delISA, Wmoy,  **kwargs, **vitesse_kwarg)
             CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M, K=forces(Hpmoy, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, **kwargs, **vitesse_kwarg)
             grad, RoCg_min, RoCp_min, AF,a=montee(Hpmoy, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, Vconst, **kwargs, **vitesse_kwarg)
-              
-            
-            Hp_low = 1000*int(Hp1/1000)
-            Hp_high = 1000+Hp_low
-            Hp_moy_1k = .5*Hp_low+.5*Hp_high
-            RoCp_min_1k = montee(Hp_moy_1k, T_C, delISA, Wmoy, CG, dVolets, pRoues, rMoteur, pVol, Vconst, **kwargs, **vitesse_kwarg) [2]
-
-            
+               
             RoCg_s=RoCg_min/60
             # print("ROCP MIN = ",RoCp_min)
 
             
-            if RoCp_min>=ROC_min and RoCp_min_1k > ROC_min and signe==1 or signe==-1:
+            if RoCp_min>=ROC_min and signe==1 or signe==-1:
 
                 
                 dt=deltaH/RoCg_s
@@ -278,8 +270,6 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
                 
             elif RoCp_min<ROC_min and signe==1:
                 print("Erreur: L'avion n'arrive pas à monter à un rythme décent")
-            elif  RoCp_min_1k < ROC_min:
-                print("Erreur : L'avion n'arrivera pas a monter a un rythme au prochain FL")
                 
             
                 
@@ -290,7 +280,7 @@ def montee_descente(Hpi,Hpf,T_C,delISA,Vvent,VKCAS,MACH, Wi, dVolets, pRoues, rM
     d1_NM = d1/ft_per_NM
     dd_10k_NM = dd_10k/ft_per_NM
     
-    return t1, d1_NM, fuel1, s2, acc_10k, V_avg_10k, dt_10k, dd_10k_NM, df_10k, W_10k, Hp_low
+    return t1, d1_NM, fuel1, s2, acc_10k, V_avg_10k, dt_10k, dd_10k_NM, df_10k, W_10k
     
 
 

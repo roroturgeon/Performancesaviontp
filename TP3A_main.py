@@ -16,36 +16,36 @@ from TP3A import montee_descente
 """
 Cas 1
 """
-# Hpi = 1500
-# Hpf = 41000
-# delISA = True
-# T_C = 10
-# Vvent = 20
-# VKCAS = 275
-# MACH=.74
-# Wi = 52800
-# dVolets = 0
-# pRoues = 'up'
-# rMoteur = "AEO"
-# pVol = "MCL"
-# nz = 1
+Hpi = 1500
+Hpf = 41000
+delISA = True
+T_C = 10
+Vvent = 20
+VKCAS = 275
+MACH=.74
+Wi = 52800
+dVolets = 0
+pRoues = 'up'
+rMoteur = "AEO"
+pVol = "MCL"
+nz = 1
 
 """
 Cas 2
 """
-Hpi = 38000
-Hpf = 1500
-delISA = True
-T_C = -10
-Vvent = -20
-VKCAS = 275
-MACH=.74
-Wi = 47000
-dVolets = 0
-pRoues = 'up'
-rMoteur = "AEO"
-pVol = "IDLE"
-nz = 1
+# Hpi = 38000
+# Hpf = 1500
+# delISA = True
+# T_C = -10
+# Vvent = -20
+# VKCAS = 275
+# MACH=.74
+# Wi = 47000
+# dVolets = 0
+# pRoues = 'up'
+# rMoteur = "AEO"
+# pVol = "IDLE"
+# nz = 1
 
 """
 Cas 3
