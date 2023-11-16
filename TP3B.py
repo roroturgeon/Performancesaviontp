@@ -27,7 +27,7 @@ def croisiere(Hp,T_C,delISA,Vvent,W,**kworgs):
     incr = 100      # [pi] increment pour valider fin montee    
     Hpi = Hp-incr   # [pi]
     VKCAS = 275     # [kts] Pour verif fin montee
-    MACH = .74      # [-] Pour verif fin montee
+    MACH = .78      # [-] Pour verif fin montee
     dVolets = 0
     pRoues = 'up'
     rMoteur = 'AEO'
@@ -123,7 +123,6 @@ def croisiere(Hp,T_C,delISA,Vvent,W,**kworgs):
                 M_eval_position = 0.6     
             
                 while abs(pente)>eps and iter_max>0:
- 
                     ret = forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol_croisiere, M=M_eval_position, nz=nz)
                     CL,CD=ret[0],ret[2]
                     optim = np.sqrt(CL)/CD
