@@ -34,7 +34,8 @@ def decollage_aterrissage(Hp,W,T_C,delISA):
     
     #Trouvons V2min
     VsrKEAS=np.sqrt((295.37*W)/(CLMAX_F20_GU*520))
-    V2_KEAS=max(1.13*VsrKEAS,1.1*Vmca)
+    # V2_KEAS=max(1.13*VsrKEAS,1.1*Vmca)
+    V2_KEAS=1.13*VsrKEAS
     V2_KTAS=V2_KEAS/np.sqrt(sigma)
     rMoteur='OEI'
     CL, L, CD, D, finesse, Cdp, Dp, CDi, Di, dCDComp, DComp, DCDWM, DWM,DCDCNTL, DCNTL,  T, AOA_9, nzSw, phiSw, nzBuffet, phi, M, K=forces(Hp, T_C, delISA, W, CG, dVolets, pRoues, rMoteur, pVol, Ve=V2_KEAS, nz=nz)
@@ -51,26 +52,33 @@ def decollage_aterrissage(Hp,W,T_C,delISA):
     if grad35OEI<gradmin:
         print("Erreur le gradient minimum selon le FAR25.121(b) n'est pas respecté")
     
+
     twdv_arr   = np.array([0.000, 0.010,  0.020,  0.100,  0.120,  0.200,  0.400,  0.60])
     dvrvl_arr  =  np.array([1.80,   2.30,   2.75,   6.50,   7.35,  10.80,  19.80,  30.0])
     dvlo35_arr =  np.array([0.00,   0.00,   1.00,   9.00,  11.00,  16.70,  31.00,  45.0])
     dvlo15_arr =  np.array([0.00,   0.00,   1.00,   8.05,   9.80,  13.00,  21.00,  29.0])
     
     V2_TAS=V2_KTAS*kts_to_fts
+    VR=0
+    incr=0.001 #pi/s
+    V2_TAS-=incr
     
-    dvlo35OEI=np.interp(grad35OEI,twdv_arr,dvlo35_arr)
-    dvlo35AEO=np.interp(grad35AEO,twdv_arr,dvlo35_arr)
+    while VR<V1mcg_KTAS*kts_to_fts or VR<1.05*Vmca_KTAS*kts_to_fts or V2_TAS<1.1*Vmca_KTAS*kts_to_fts:
     
-    VLOFOEI = V2_TAS-dvlo35OEI
-    
-    dvrvlOEI = np.interp(grad35OEI,twdv_arr,dvrvl_arr)
-    dvrvlAEO = np.interp(grad35AEO,twdv_arr,dvrvl_arr)
-    
-    VR = VLOFOEI-dvrvlOEI
-    
-    if VR<V1mcg_KTAS*kts_to_fts or VR<1.05*Vmca_KTAS*kts_to_fts:
-        print("Erreur le Vr ne respecte pas les critères")
-    
+        V2_TAS+=incr
+        dvlo35OEI=np.interp(grad35OEI,twdv_arr,dvlo35_arr)
+        dvlo35AEO=np.interp(grad35AEO,twdv_arr,dvlo35_arr)
+        
+        VLOFOEI = V2_TAS-dvlo35OEI
+        
+        dvrvlOEI = np.interp(grad35OEI,twdv_arr,dvrvl_arr)
+        dvrvlAEO = np.interp(grad35AEO,twdv_arr,dvrvl_arr)
+        
+        VR = VLOFOEI-dvrvlOEI
+        
+
+        
+        
     VLOFAEO=VR+dvrvlAEO
     
     V35AEO=VLOFAEO+dvlo35AEO
@@ -90,8 +98,8 @@ def decollage_aterrissage(Hp,W,T_C,delISA):
     disvlov35OEI=((V2_TAS+VLOFOEI)/2)*dtvlov35OEI
     disvlovrAEO=((VR+VLOFAEO)/2)*dtvlovrAEO
     disvlov35AEO=((V35AEO+VLOFAEO)/2)*dtvlov35AEO
-    
-    
+        
+        
     V1_min=V1mcg_KTAS*kts_to_fts
     V1_max=VR
     
