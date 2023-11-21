@@ -25,6 +25,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     kts_to_fts=1.6878
     g=32.174
     S=520
+    deltASD=2
     V1_min,V1_max,VR,V2_TAS,VLOFOEI,VLOFAEO,V35AEO, dtvlovrOEI,dtvlov35OEI,dtvlovrAEO,dtvlov35AEO,disvlovrOEI,disvlov35OEI,disvlovrAEO,disvlov35AEO=decollage_aterrissage(Hp, W, T_C, delISA)
     V1mcg_KTAS=parametres_de_vol(Hp, T_C, delISA, W,Vc=V1mcg)[3]
     V1=V1VR*VR
@@ -51,6 +52,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     a_VRVo=g*((T_VRVo-CDG_20_S_AEO*qrms_VRVo*S-Mubrk*(W-CLG_20_S*qrms_VRVo*S))/W)
     delt_VRVo=(V0-VR)/a_VRVo
     deldisVRVo=delt_VRVo*(VR+(V0-VR)/2)
+    ASDmargin1=deltASD*VR
     #Vr à Vlof
     
     #Vlof à V35
@@ -80,6 +82,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         a_V1VRVRVo=g*((T_V1VRVRVo-CDG_20_S_AEO*qrms_V1VRVRVo*S-Mubrk*(W-CLG_20_S*qrms_V1VRVRVo*S))/W)
         delt_V1VRVRVo=(V0-V1VR*VR)/a_V1VRVRVo
         deldisV1VRVRVo=delt_VoV1VRVR*(V1VR*VR+(V0-V1VR*VR)/2)
+        ASDmargin2=deltASD*V1VR*VR
         
         
         #OEI
@@ -91,12 +94,21 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         a_VRV1VRVR=g*((T_VRV1VRVR-CDG_20_NS_OEI*qrms_VRV1VRVR*S-Muroll*(W-CLG_20_NS*qrms_VRV1VRVR*S))/W)
         delt_VRV1VRVR=(VR-V1VR*VR)/a_VRV1VRVR
         deldisVRV1VRVR=delt_VRV1VRVR*(V1VR*VR+(VR-V1VR*VR)/2)
+        
+        TODOEI_1=deldisVoV1VRVR+deldisVRV1VRVR+disvlovrOEI+disvlov35OEI
+        TODOEI_2=deldisVoVR+disvlovrOEI+disvlov35OEI
+        TODOEI=max(TODOEI_1,TODOEI_2)
+        
+        ASD1=deldisVoV1VRVR+ASDmargin2+deldisV1VRVRVo
+        ASD2=deldisVoVR+ASDmargin1+deldisVRVo
+        ASD=max(ASD1,ASD2)
     else:
-        a=2
+        TODOEI=deldisVoVR+disvlovrOEI+disvlov35OEI
+        ASD=deldisVoVR+ASDmargin1+deldisVRVo
         
         
     FTOD=deldisVoVR+disvlovrAEO+dtvlov35AEO
     
     
     
-    return
+    return FTOD,TODOEI,ASD
