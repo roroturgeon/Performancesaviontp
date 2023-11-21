@@ -42,6 +42,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     T_VoVR = 2*((8775 - 0.1915*Hp) - (8505-0.195*Hp)*Mrms_VoVR)
     a_VoVR=g*((T_VoVR-CDG_20_NS_AEO*qrms_VoVR*S-Muroll*(W-CLG_20_NS*qrms_VoVR*S))/W)
     delt_VoVR=(VR-V0)/a_VoVR
+    deldisVoVR=delt_VoVR*(V0+(VR-V0)/2)
     #Vr à Vo
     Vrms_VRVo=Vrms_VoVR
     Mrms_VRVo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VRVo)[2]
@@ -49,6 +50,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     T_VRVo = IDRVFN = 2*(-160 -3700*Mrms_VRVo)
     a_VRVo=g*((T_VRVo-CDG_20_S_AEO*qrms_VRVo*S-Mubrk*(W-CLG_20_S*qrms_VRVo*S))/W)
     delt_VRVo=(V0-VR)/a_VRVo
+    deldisVRVo=delt_VRVo*(VR+(V0-VR)/2)
     #Vr à Vlof
     
     #Vlof à V35
@@ -69,6 +71,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         T_VoV1VRVR = 2*((8775 - 0.1915*Hp) - (8505-0.195*Hp)*Mrms_VoV1VRVR)
         a_VoV1VRVR=g*((T_VoV1VRVR-CDG_20_NS_AEO*qrms_VoV1VRVR*S-Muroll*(W-CLG_20_NS*qrms_VoV1VRVR*S))/W)
         delt_VoV1VRVR=(V1VR*VR-V0)/a_VoV1VRVR
+        deldisVoV1VRVR=delt_VoV1VRVR*(V0+(V1VR*VR-V0)/2)
         #V1VRVR à Vo
         Vrms_V1VRVRVo=Vrms_VoV1VRVR
         Mrms_V1VRVRVo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_V1VRVRVo)[2]
@@ -76,6 +79,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         T_V1VRVRVo = IDRVFN = 2*(-160 -3700*Mrms_V1VRVRVo)
         a_V1VRVRVo=g*((T_V1VRVRVo-CDG_20_S_AEO*qrms_V1VRVRVo*S-Mubrk*(W-CLG_20_S*qrms_V1VRVRVo*S))/W)
         delt_V1VRVRVo=(V0-V1VR*VR)/a_V1VRVRVo
+        deldisV1VRVRVo=delt_VoV1VRVR*(V1VR*VR+(V0-V1VR*VR)/2)
         
         
         #OEI
@@ -86,9 +90,12 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         T_VRV1VRVR = 2*((8775 - 0.1915*Hp) - (8505-0.195*Hp)*Mrms_VRV1VRVR)
         a_VRV1VRVR=g*((T_VRV1VRVR-CDG_20_NS_OEI*qrms_VRV1VRVR*S-Muroll*(W-CLG_20_NS*qrms_VRV1VRVR*S))/W)
         delt_VRV1VRVR=(VR-V1VR*VR)/a_VRV1VRVR
+        deldisVRV1VRVR=delt_VRV1VRVR*(V1VR*VR+(VR-V1VR*VR)/2)
+    else:
+        a=2
         
         
-    
+    FTOD=deldisVoVR+disvlovrAEO+dtvlov35AEO
     
     
     
