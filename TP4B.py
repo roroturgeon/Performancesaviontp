@@ -26,11 +26,24 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     g=32.174
     S=520
     deltASD=2
+    RAD=0
     V1_min,V1_max,VR,V2_TAS,VLOFOEI,VLOFAEO,V35AEO, dtvlovrOEI,dtvlov35OEI,dtvlovrAEO,dtvlov35AEO,disvlovrOEI,disvlov35OEI,disvlovrAEO,disvlov35AEO=decollage_aterrissage(Hp, W, T_C, delISA)
     V1mcg_KTAS=parametres_de_vol(Hp, T_C, delISA, W,Vc=V1mcg)[3]
     V1=V1VR*VR
     if V1<V1mcg_KTAS*kts_to_fts:
         print("Erreur V1 inférieur à V1mcg")
+        tol=0.001
+        V1=V1mcg_KTAS*kts_to_fts
+        increment=0.001
+        r=0
+        while abs(r-V1VR)>tol :
+            VR+=increment
+            r=V1/VR
+            
+        V1VR=r
+        print(V1)
+        print(VR)
+        print(V1VR)
     
     
     #AEO
@@ -102,13 +115,15 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         ASD1=deldisVoV1VRVR+ASDmargin2+deldisV1VRVRVo
         ASD2=deldisVoVR+ASDmargin1+deldisVRVo
         ASD=max(ASD1,ASD2)
+        
     else:
         TODOEI=deldisVoVR+disvlovrOEI+disvlov35OEI
         ASD=deldisVoVR+ASDmargin1+deldisVRVo
         
         
     FTOD=deldisVoVR+disvlovrAEO+dtvlov35AEO
+    LMIN=max(FTOD,ASD,TODOEI)
     
     
     
-    return FTOD,TODOEI,ASD
+    return FTOD,TODOEI,ASD,LMIN
