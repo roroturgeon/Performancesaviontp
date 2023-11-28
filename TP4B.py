@@ -12,7 +12,6 @@ from TP2B import montee
 from TP4A import decollage_aterrissage
 
 def longpiste(V1VR, W, Hp, T_C, delISA):
-    fact=V1VR
     CLG_20_NS=0.8290
     CLG_20_S=0.2090
     CDG_20_NS_AEO=0.0750
@@ -25,47 +24,48 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     kts_to_fts=1.6878
     g=32.174
     S=520
-    deltASD=2
+    deltASD=2 #secondes
     RAD=0
+    dVolets=20
+    pRoues="up"
+    nz=1
+    CG=0.09
     V1_min,V1_max,VR,V2_TAS,VLOFOEI,VLOFAEO,V35AEO, dtvlovrOEI,dtvlov35OEI,dtvlovrAEO,dtvlov35AEO,disvlovrOEI,disvlov35OEI,disvlovrAEO,disvlov35AEO=decollage_aterrissage(Hp, W, T_C, delISA)
-    V1mcg_KTAS=parametres_de_vol(Hp, T_C, delISA, W,Vc=V1mcg)[3]
+    V1mcg_fts=V1mcg*kts_to_fts
     V1=V1VR*VR
-    if V1<V1mcg_KTAS*kts_to_fts:
-        print("Erreur V1 inférieur à V1mcg")
-        tol=0.001
-        V1=V1mcg_KTAS*kts_to_fts
-        increment=0.001
-        r=0
-        while abs(r-V1VR)>tol :
-            VR+=increment
-            r=V1/VR
-            
-        V1VR=r
-        print(V1)
-        print(VR)
-        print(V1VR)
+    if V1<V1mcg_fts:
+        print("Attention V1 est inférieur à V1mcg")
+        V1=V1mcg_fts
+        VR=V1/V1VR
     
     
     #AEO
+    rMoteur = "AEO"
+    pVol = "MTO"
     
     #Vo à Vr
     V0=0
     Vrms_VoVR=(np.sqrt(2)/2)*np.sqrt(V0**2+VR**2)
-    Mrms_VoVR=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoVR)[2]
-    qrms_VoVR=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoVR)[10]
-    T_VoVR = 2*((8775 - 0.1915*Hp) - (8505-0.195*Hp)*Mrms_VoVR)
-    a_VoVR=g*((T_VoVR-CDG_20_NS_AEO*qrms_VoVR*S-Muroll*(W-CLG_20_NS*qrms_VoVR*S))/W)
+    Vrms_VoVR_kts=Vrms_VoVR/kts_to_fts
+    Mrms_VoVR=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoVR_kts)[2]
+    qrms_VoVR=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoVR_kts)[10]
+    T_VoVR=forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, nz=nz,V=Vrms_VoVR_kts)[15]
+    a_VoVR=(g/W)*((T_VoVR-CDG_20_NS_AEO*qrms_VoVR*S-Muroll*(W-CLG_20_NS*qrms_VoVR*S)))
     delt_VoVR=(VR-V0)/a_VoVR
     deldisVoVR=delt_VoVR*(V0+(VR-V0)/2)
+    
+    rMoteur = "OEI"
+    pVol = "IDLE"
     #Vr à Vo
     Vrms_VRVo=Vrms_VoVR
-    Mrms_VRVo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VRVo)[2]
-    qrms_VRVo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VRVo)[10]
-    T_VRVo = IDRVFN = 2*(-160 -3700*Mrms_VRVo)
-    a_VRVo=g*((T_VRVo-CDG_20_S_AEO*qrms_VRVo*S-Mubrk*(W-CLG_20_S*qrms_VRVo*S))/W)
+    Vrms_VRVo_kts=Vrms_VoVR_kts
+    Mrms_VRVo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VRVo_kts)[2]
+    qrms_VRVo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VRVo_kts)[10]
+    T_VRVo=forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, nz=nz,V=Vrms_VRVo_kts)[15]
+    a_VRVo=(g/W)*((T_VRVo-CDG_20_S_AEO*qrms_VRVo*S-Mubrk*(W-CLG_20_S*qrms_VRVo*S)))
     delt_VRVo=(V0-VR)/a_VRVo
     deldisVRVo=delt_VRVo*(VR+(V0-VR)/2)
-    ASDmargin1=deltASD*VR
+    ASDmargin1=deltASD*V1
     #Vr à Vlof
     
     #Vlof à V35
@@ -77,43 +77,56 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     
     if V1VR!=1:
         #AEO
-        
-        #Vo à V1VR*VR
-        V1VRVR=V1VR*VR
-        Vrms_VoV1VRVR=(np.sqrt(2)/2)*np.sqrt(V0**2+V1VRVR**2)
-        Mrms_VoV1VRVR=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoV1VRVR)[2]
-        qrms_VoV1VRVR=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoV1VRVR)[10]
-        T_VoV1VRVR = 2*((8775 - 0.1915*Hp) - (8505-0.195*Hp)*Mrms_VoV1VRVR)
-        a_VoV1VRVR=g*((T_VoV1VRVR-CDG_20_NS_AEO*qrms_VoV1VRVR*S-Muroll*(W-CLG_20_NS*qrms_VoV1VRVR*S))/W)
-        delt_VoV1VRVR=(V1VR*VR-V0)/a_VoV1VRVR
-        deldisVoV1VRVR=delt_VoV1VRVR*(V0+(V1VR*VR-V0)/2)
-        #V1VRVR à Vo
-        Vrms_V1VRVRVo=Vrms_VoV1VRVR
-        Mrms_V1VRVRVo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_V1VRVRVo)[2]
-        qrms_V1VRVRVo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_V1VRVRVo)[10]
-        T_V1VRVRVo = IDRVFN = 2*(-160 -3700*Mrms_V1VRVRVo)
-        a_V1VRVRVo=g*((T_V1VRVRVo-CDG_20_S_AEO*qrms_V1VRVRVo*S-Mubrk*(W-CLG_20_S*qrms_V1VRVRVo*S))/W)
-        delt_V1VRVRVo=(V0-V1VR*VR)/a_V1VRVRVo
-        deldisV1VRVRVo=delt_VoV1VRVR*(V1VR*VR+(V0-V1VR*VR)/2)
-        ASDmargin2=deltASD*V1VR*VR
-        
+        rMoteur = "AEO"
+        pVol = "MTO"
+        #Vo à V1
+
+        Vrms_VoV1=(np.sqrt(2)/2)*np.sqrt(V0**2+V1**2)
+        Vrms_VoV1_kts=Vrms_VoV1/kts_to_fts
+        Mrms_VoV1=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoV1_kts)[2]
+        qrms_VoV1=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoV1_kts)[10]
+        T_VoV1=forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, nz=nz,V=Vrms_VoV1_kts)[15]
+        a_VoV1=g*((T_VoV1-CDG_20_NS_AEO*qrms_VoV1*S-Muroll*(W-CLG_20_NS*qrms_VoV1*S))/W)
+        delt_VoV1=(V1VR*VR-V0)/a_VoV1
+        deldisVoV1=delt_VoV1*(V0+(V1-V0)/2)
         
         #OEI
-        #V1VR*VR à VR
-        Vrms_VRV1VRVR=(np.sqrt(2)/2)*np.sqrt(V1VRVR**2+VR**2)
-        Mrms_VRV1VRVR=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VRV1VRVR)[2]
-        qrms_VRV1VRVR=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VRV1VRVR)[10]
-        T_VRV1VRVR = 2*((8775 - 0.1915*Hp) - (8505-0.195*Hp)*Mrms_VRV1VRVR)
-        a_VRV1VRVR=g*((T_VRV1VRVR-CDG_20_NS_OEI*qrms_VRV1VRVR*S-Muroll*(W-CLG_20_NS*qrms_VRV1VRVR*S))/W)
-        delt_VRV1VRVR=(VR-V1VR*VR)/a_VRV1VRVR
-        deldisVRV1VRVR=delt_VRV1VRVR*(V1VR*VR+(VR-V1VR*VR)/2)
+        rMoteur = "OEI"
+        pVol = "IDLE"
+        #V1 à Vo
+        Vrms_V1Vo=Vrms_VoV1
+        Vrms_V1Vo_kts=Vrms_VoV1_kts
+        Mrms_V1Vo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_V1Vo_kts)[2]
+        qrms_V1Vo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_V1Vo_kts)[10]
+        T_V1Vo=forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, nz=nz,V=Vrms_V1Vo_kts)[15]
+        a_V1Vo=g*((T_V1Vo-CDG_20_S_AEO*qrms_V1Vo*S-Mubrk*(W-CLG_20_S*qrms_V1Vo*S))/W)
+        delt_V1Vo=(V0-V1VR*VR)/a_V1Vo
+        deldisV1Vo=delt_VoV1*(V1VR*VR+(V0-V1)/2)
+        ASDmargin2=deltASD*V1
         
-        TODOEI_1=deldisVoV1VRVR+deldisVRV1VRVR+disvlovrOEI+disvlov35OEI
+        
+        
+        rMoteur = "OEI"
+        pVol = "MTO"
+        #V1 à VR
+        Vrms_VRV1=(np.sqrt(2)/2)*np.sqrt(V1**2+VR**2)
+        Vrms_VRV1_kts=Vrms_VRV1/kts_to_fts
+        Mrms_VRV1=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VRV1_kts)[2]
+        qrms_VRV1=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VRV1_kts)[10]
+        T_VRV1=forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, nz=nz,V=Vrms_VRV1_kts)[15]
+        a_VRV1=(g/W)*((T_VRV1-CDG_20_NS_OEI*qrms_VRV1*S-Muroll*(W-CLG_20_NS*qrms_VRV1*S)))
+        delt_VRV1=(VR-V1)/a_VRV1
+        deldisVRV1=delt_VRV1*(V1+(VR-V1)/2)
+        
+
+        TODOEI_1=deldisVoV1+deldisVRV1+disvlovrOEI+disvlov35OEI
         TODOEI_2=deldisVoVR+disvlovrOEI+disvlov35OEI
         TODOEI=max(TODOEI_1,TODOEI_2)
         
-        ASD1=deldisVoV1VRVR+ASDmargin2+deldisV1VRVRVo
+        ASD1=deldisVoV1+ASDmargin2+deldisV1Vo
+        print(ASD1)
         ASD2=deldisVoVR+ASDmargin1+deldisVRVo
+        print(ASD2)
         ASD=max(ASD1,ASD2)
         
     else:
@@ -121,7 +134,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         ASD=deldisVoVR+ASDmargin1+deldisVRVo
         
         
-    FTOD=deldisVoVR+disvlovrAEO+dtvlov35AEO
+    FTOD=1.15*(deldisVoVR+disvlovrAEO+dtvlov35AEO)
     LMIN=max(FTOD,ASD,TODOEI)
     
     
