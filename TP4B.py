@@ -30,6 +30,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     pRoues="up"
     nz=1
     CG=0.09
+    nb_brk=4
     V1_min,V1_max,VR,V2_TAS,VLOFOEI,VLOFAEO,V35AEO, dtvlovrOEI,dtvlov35OEI,dtvlovrAEO,dtvlov35AEO,disvlovrOEI,disvlov35OEI,disvlovrAEO,disvlov35AEO=decollage_aterrissage(Hp, W, T_C, delISA)
     V1mcg_fts=V1mcg*kts_to_fts
     V1=V1VR*VR
@@ -53,8 +54,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     a_VoVR=(g/W)*((T_VoVR-CDG_20_NS_AEO*qrms_VoVR*S-Muroll*(W-CLG_20_NS*qrms_VoVR*S)))
     delt_VoVR=(VR-V0)/a_VoVR
     deldisVoVR=delt_VoVR*(V0+(VR-V0)/2)
-    
-    rMoteur = "OEI"
+
     pVol = "IDLE"
     #Vr à Vo
     Vrms_VRVo=Vrms_VoVR
@@ -86,12 +86,10 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         Mrms_VoV1=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoV1_kts)[2]
         qrms_VoV1=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_VoV1_kts)[10]
         T_VoV1=forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, nz=nz,V=Vrms_VoV1_kts)[15]
-        a_VoV1=g*((T_VoV1-CDG_20_NS_AEO*qrms_VoV1*S-Muroll*(W-CLG_20_NS*qrms_VoV1*S))/W)
-        delt_VoV1=(V1VR*VR-V0)/a_VoV1
+        a_VoV1=(g/W)*((T_VoV1-CDG_20_NS_AEO*qrms_VoV1*S-Muroll*(W-CLG_20_NS*qrms_VoV1*S)))
+        delt_VoV1=(V1-V0)/a_VoV1
         deldisVoV1=delt_VoV1*(V0+(V1-V0)/2)
         
-        #OEI
-        rMoteur = "OEI"
         pVol = "IDLE"
         #V1 à Vo
         Vrms_V1Vo=Vrms_VoV1
@@ -99,13 +97,13 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         Mrms_V1Vo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_V1Vo_kts)[2]
         qrms_V1Vo=parametres_de_vol(Hp, T_C, delISA, W, V=Vrms_V1Vo_kts)[10]
         T_V1Vo=forces(Hp,T_C,delISA,W,CG, dVolets, pRoues, rMoteur, pVol, nz=nz,V=Vrms_V1Vo_kts)[15]
-        a_V1Vo=g*((T_V1Vo-CDG_20_S_AEO*qrms_V1Vo*S-Mubrk*(W-CLG_20_S*qrms_V1Vo*S))/W)
-        delt_V1Vo=(V0-V1VR*VR)/a_V1Vo
-        deldisV1Vo=delt_VoV1*(V1VR*VR+(V0-V1)/2)
+        a_V1Vo=(g/W)*((T_V1Vo-CDG_20_S_AEO*qrms_V1Vo*S-Mubrk*(W-CLG_20_S*qrms_V1Vo*S)))
+        delt_V1Vo=(V0-V1)/a_V1Vo
+        deldisV1Vo=delt_V1Vo*(V1+(V0-V1)/2)
         ASDmargin2=deltASD*V1
         
         
-        
+        #OEI
         rMoteur = "OEI"
         pVol = "MTO"
         #V1 à VR
@@ -137,6 +135,21 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     FTOD=1.15*(deldisVoVR+disvlovrAEO+dtvlov35AEO)
     LMIN=max(FTOD,ASD,TODOEI)
     
+    # Évaluer la portance à VRMS pour FB a VRMS
+    if ASD1>=ASD2 : 
+        q_brk = qrms_VoV1
+    else: 
+        q_brk = qrms_VRVo
+    q_brk = 22.11596
+    print(q_brk)
+    L_brk=CLG_20_S*S*q_brk
+    FB = Mubrk*(W-L_brk)
+    ds=max(deldisV1Vo,deldisVRVo)
+    ds = 1597.46751479
+    print(ds)
+    
+    #enlever div et 1 million
+    DBRKE = FB*ds/1e6
     
     
-    return FTOD,TODOEI,ASD,LMIN
+    return FTOD,TODOEI,ASD,LMIN, DBRKE

@@ -15,7 +15,7 @@ Hp = 0          # ft
 delISA = True   # Déviation isa
 T_C = 20        # °C
 
-# # CAS 2
+# CAS 2
 # V1VR = 0.80    # V1/VR
 # W =  30000      # Poids (lbs)
 # Hp = 2000          # ft
@@ -32,4 +32,4 @@ T_C = 20        # °C
 
 
 
-FTOD,TODOEI,ASD,LMIN=longpiste(V1VR, W, Hp, T_C, delISA)
+FTOD,TODOEI,ASD,LMIN, DBRKE=longpiste(V1VR, W, Hp, T_C, delISA)
