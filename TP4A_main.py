@@ -13,7 +13,7 @@ Hp=0
 T_C=20
 delISA=True
 
-V1_min,V1_max,VR,V2_TAS,VLOFOEI,VLOFAEO,V35AEO, dtvlovrOEI,dtvlov35OEI,dtvlovrAEO,dtvlov35AEO,disvlovrOEI,disvlov35OEI,disvlovrAEO,disvlov35AEO=decollage_aterrissage(Hp, W, T_C, delISA)
+V1_min,V1_max,VR,V2_TAS,VLOFOEI,VLOFAEO,V35AEO, dtvlovrOEI,dtvlov35OEI,dtvlovrAEO,dtvlov35AEO,disvlovrOEI,disvlov35OEI,disvlovrAEO,disvlov35AEO, dvrvlOEI, dvrvlAEO,dvlo35OEI, dvlo35AEO=decollage_aterrissage(Hp, W, T_C, delISA)
 
 # W=30000
 # Hp=2000

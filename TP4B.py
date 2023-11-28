@@ -31,13 +31,27 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     nz=1
     CG=0.09
     nb_brk=4
-    V1_min,V1_max,VR,V2_TAS,VLOFOEI,VLOFAEO,V35AEO, dtvlovrOEI,dtvlov35OEI,dtvlovrAEO,dtvlov35AEO,disvlovrOEI,disvlov35OEI,disvlovrAEO,disvlov35AEO=decollage_aterrissage(Hp, W, T_C, delISA)
+    V1_min,V1_max,VR,V2_TAS,VLOFOEI,VLOFAEO,V35AEO, dtvlovrOEI,dtvlov35OEI,dtvlovrAEO,dtvlov35AEO,disvlovrOEI,disvlov35OEI,disvlovrAEO,disvlov35AEO, dvrvlOEI, dvrvlAEO,dvlo35OEI, dvlo35AEO=decollage_aterrissage(Hp, W, T_C, delISA)
     V1mcg_fts=V1mcg*kts_to_fts
     V1=V1VR*VR
     if V1<V1mcg_fts:
         print("Attention V1 est inférieur à V1mcg")
         V1=V1mcg_fts
         VR=V1/V1VR
+        
+        # Calcul des vitesses
+        VLOFAEO = VR + dvrvlAEO;
+        VLOFOEI = VR + dvrvlOEI;
+        
+        V35AEO = VLOFAEO + dvlo35AEO;
+        V2_TAS = VLOFOEI + dvlo35OEI;
+        
+        # Calcul des distances
+        disvlovrOEI = dtvlovrOEI*(VR + VLOFOEI)/2;
+        disvlov35OEI = dtvlov35OEI*(V2_TAS + VLOFOEI)/2;
+        
+        disvlovrAEO = dtvlovrAEO*(VR + VLOFAEO)/2;
+        disvlov35AEO = dtvlov35AEO*(VLOFAEO+V35AEO)/2;
     
     
     #AEO
@@ -117,36 +131,24 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
         deldisVRV1=delt_VRV1*(V1+(VR-V1)/2)
         
 
-        TODOEI_1=deldisVoV1+deldisVRV1+disvlovrOEI+disvlov35OEI
-        TODOEI_2=deldisVoVR+disvlovrOEI+disvlov35OEI
-        TODOEI=max(TODOEI_1,TODOEI_2)
+        TODOEI=deldisVoV1+deldisVRV1+disvlovrOEI+disvlov35OEI
         
-        ASD1=deldisVoV1+ASDmargin2+deldisV1Vo
-        print(ASD1)
-        ASD2=deldisVoVR+ASDmargin1+deldisVRVo
-        print(ASD2)
-        ASD=max(ASD1,ASD2)
+        ASD=deldisVoV1+ASDmargin2+deldisV1Vo
+
         
     else:
         TODOEI=deldisVoVR+disvlovrOEI+disvlov35OEI
         ASD=deldisVoVR+ASDmargin1+deldisVRVo
         
         
-    FTOD=1.15*(deldisVoVR+disvlovrAEO+dtvlov35AEO)
+    FTOD=1.15*(deldisVoVR+disvlovrAEO+disvlov35AEO)
     LMIN=max(FTOD,ASD,TODOEI)
     
-    # Évaluer la portance à VRMS pour FB a VRMS
-    if ASD1>=ASD2 : 
-        q_brk = qrms_VoV1
-    else: 
-        q_brk = qrms_VRVo
-    q_brk = 22.11596
-    print(q_brk)
+    q_brk = qrms_VoV1
+
     L_brk=CLG_20_S*S*q_brk
     FB = Mubrk*(W-L_brk)
-    ds=max(deldisV1Vo,deldisVRVo)
-    ds = 1597.46751479
-    print(ds)
+    ds=deldisV1Vo
     
     #enlever div et 1 million
     DBRKE = FB*ds/1e6
