@@ -36,22 +36,24 @@ def longpiste(V1VR, W, Hp, T_C, delISA):
     V1=V1VR*VR
     if V1<V1mcg_fts:
         print("Attention V1 est inférieur à V1mcg")
-        V1=V1mcg_fts
+        V1=V1_min
         VR=V1/V1VR
         
         # Calcul des vitesses
-        VLOFAEO = VR + dvrvlAEO;
-        VLOFOEI = VR + dvrvlOEI;
+        VLOFAEO = VR + dvrvlAEO
+        VLOFOEI = VR + dvrvlOEI
+
         
-        V35AEO = VLOFAEO + dvlo35AEO;
-        V2_TAS = VLOFOEI + dvlo35OEI;
+        V35AEO = VLOFAEO + dvlo35AEO
+        V2_TAS = VLOFOEI + dvlo35OEI
+
         
         # Calcul des distances
-        disvlovrOEI = dtvlovrOEI*(VR + VLOFOEI)/2;
-        disvlov35OEI = dtvlov35OEI*(V2_TAS + VLOFOEI)/2;
+        disvlovrOEI = dtvlovrOEI*(VR + VLOFOEI)/2
+        disvlov35OEI = dtvlov35OEI*(V2_TAS + VLOFOEI)/2
         
-        disvlovrAEO = dtvlovrAEO*(VR + VLOFAEO)/2;
-        disvlov35AEO = dtvlov35AEO*(VLOFAEO+V35AEO)/2;
+        disvlovrAEO = dtvlovrAEO*(VR + VLOFAEO)/2
+        disvlov35AEO = dtvlov35AEO*(VLOFAEO+V35AEO)/2
     
     
     #AEO
