@@ -11,7 +11,7 @@ from TP2A import forces
 from TP2B import montee
 from TP4A import decollage_aterrissage
 
-def longpiste(V1VR, W, Hp, T_C, delISA, CG):
+def longpiste(V1VR, W, Hp, T_C, delISA):
     CLG_20_NS=0.8290
     CLG_20_S=0.2090
     CDG_20_NS_AEO=0.0750
@@ -29,6 +29,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA, CG):
     dVolets=20
     pRoues="up"
     nz=1
+    CG=0.09
     nb_brk=4
     V1_min,V1_max,VR,V2_TAS,VLOFOEI,VLOFAEO,V35AEO, dtvlovrOEI,dtvlov35OEI,dtvlovrAEO,dtvlov35AEO,disvlovrOEI,disvlov35OEI,disvlovrAEO,disvlov35AEO, dvrvlOEI, dvrvlAEO,dvlo35OEI, dvlo35AEO=decollage_aterrissage(Hp, W, T_C, delISA)
     V1mcg_fts=V1mcg*kts_to_fts
@@ -135,30 +136,21 @@ def longpiste(V1VR, W, Hp, T_C, delISA, CG):
         TODOEI=deldisVoV1+deldisVRV1+disvlovrOEI+disvlov35OEI
         
         ASD=deldisVoV1+ASDmargin2+deldisV1Vo
-        
-        # Extraction des donnees necessaires au calcul de l'energie de freinage
-        # dans les varibables globales
-        q_brk = qrms_VoV1
-        ds=deldisV1Vo
 
         
     else:
         TODOEI=deldisVoVR+disvlovrOEI+disvlov35OEI
         ASD=deldisVoVR+ASDmargin1+deldisVRVo
         
-        # Extraction des donnees necessaires au calcul de l'energie de freinage
-        # dans les varibables globales
-        q_brk = qrms_VRVo
-        ds=deldisVRVo
         
     FTOD=1.15*(deldisVoVR+disvlovrAEO+disvlov35AEO)
     LMIN=max(FTOD,ASD,TODOEI)
     
-    
+    q_brk = qrms_VoV1
 
     L_brk=CLG_20_S*S*q_brk
     FB = Mubrk*(W-L_brk)
-    
+    ds=deldisV1Vo
     
     #enlever div et 1 million
     DBRKE = FB*ds/1e6
