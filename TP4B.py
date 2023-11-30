@@ -42,6 +42,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA, CG):
         VLOFAEO = VR + dvrvlAEO
         VLOFOEI = VR + dvrvlOEI
 
+
         
         V35AEO = VLOFAEO + dvlo35AEO
         V2_TAS = VLOFOEI + dvlo35OEI
@@ -162,6 +163,7 @@ def longpiste(V1VR, W, Hp, T_C, delISA, CG):
     
     #enlever div et 1 million
     DBRKE = FB*ds/1e6
+    tiremax=max(VLOFAEO, VLOFOEI)
     
     
-    return FTOD,TODOEI,ASD,LMIN, DBRKE
+    return FTOD,TODOEI,ASD,LMIN, DBRKE, tiremax
