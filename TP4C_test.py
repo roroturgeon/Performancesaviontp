@@ -24,7 +24,7 @@ CG = 0.09
 l_piste_tot=5700        # [pi]
 RAD = 200               # [pi]
 l_piste_dispo = l_piste_tot - RAD
-kemax = 16.7            # [1e6 lb*ft]
+kemax = 16.7*4            # [1e6 lb*ft]
 tiremax_avion = 308    # [fts] converti de 210mph
 
 
