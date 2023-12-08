@@ -24,11 +24,11 @@ CG = 0.09
 l_piste_tot=5700        # [pi]
 RAD = 200               # [pi]
 l_piste_dispo = l_piste_tot - RAD
-kemax = 16.7            # [1e6 lb*ft]
-tiremax_avion = 182.485011    # [kts] converti de 210mph
+kemax = 16.7*4            # [1e6 lb*ft]
+tiremax_avion = 308    # [fts] converti de 210mph
 
 
-nbitermax=50
+nbitermax=100
 # Plage de poids et de ratio V1VR pour maximiser le poids
 
 W_max = 53000
@@ -42,17 +42,17 @@ V1VR_arr=np.linspace(V1VR_min,V1VR_max, 100)
 nbiter=0
 
 while nbiter<nbitermax:
+    succes=False
     nbiter+=1
     W=(W_lo+W_hi)*.5
     LMIN_arr = np.zeros_like(V1VR_arr)
     for i in range(len(V1VR_arr)):
-        LMIN_arr[i]=longpiste(V1VR_arr[i], W, Hp, T_C, delISA, CG)[3]
-        if LMIN_arr[i]<=l_piste_dispo:
-            FTOD,TODOEI,ASD,LMIN, DBRKE, tiremax =longpiste(V1VR_arr[i], W, Hp, T_C, delISA, CG)
-    succes = np.any(LMIN_arr[:]<l_piste_dispo)
-    if tiremax>tiremax_avion or DBRKE>kemax:
-        succes=False
-    
+        FTOD,TODOEI,ASD,LMIN, DBRKE, tiremax = longpiste(V1VR_arr[i], W, Hp, T_C, delISA, CG)
+        LMIN_arr[i]=LMIN
+        if LMIN<=l_piste_dispo and DBRKE<=kemax and tiremax<=tiremax_avion:
+            succes=True
+            print("V1VR = ", V1VR_arr[i])
+            print("W = ",W)
     if succes:
         W_lo=W
     else:

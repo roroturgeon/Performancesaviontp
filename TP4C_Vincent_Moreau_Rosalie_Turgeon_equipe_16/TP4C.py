@@ -45,11 +45,14 @@ while nbiter<nbitermax:
     succes=False
     nbiter+=1
     W=(W_lo+W_hi)*.5
+    LMIN_arr = np.zeros_like(V1VR_arr)
     for i in range(len(V1VR_arr)):
         FTOD,TODOEI,ASD,LMIN, DBRKE, tiremax = longpiste(V1VR_arr[i], W, Hp, T_C, delISA, CG)
+        LMIN_arr[i]=LMIN
         if LMIN<=l_piste_dispo and DBRKE<=kemax and tiremax<=tiremax_avion:
             succes=True
-            print("CACA")
+            print("V1VR = ", V1VR_arr[i])
+            print("W = ",W)
     if succes:
         W_lo=W
     else:
@@ -65,11 +68,11 @@ while nbiter<nbitermax:
 #         V1VR_max = V1VR_arr[i]
 #         V1VR_max_trouve = True
 
-# plt.figure(dpi=500)
-# plt.plot(V1VR_arr,LMIN_arr)
-# plt.xlabel("V1VR [-]")
-# plt.ylabel("LMIN [pi]")
-# plt.plot([V1VR_min, V1VR_max], [l_piste_dispo,l_piste_dispo] ,'--')
+plt.figure(dpi=500)
+plt.plot(V1VR_arr,LMIN_arr)
+plt.xlabel("V1VR [-]")
+plt.ylabel("LMIN [pi]")
+plt.plot([V1VR_min, V1VR_max], [l_piste_dispo,l_piste_dispo] ,'--')
 
 print("Poids = ",W)
 # print("V1VR (min) = ",V1VR_min)
